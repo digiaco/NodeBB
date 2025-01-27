@@ -66,17 +66,19 @@ admin.get = async function () {
 	const ids = await db.getSortedSetRange('navigation:enabled', 0, -1);
 	const data = await db.getObjects(ids.map(id => `navigation:enabled:${id}`));
 	cache = data.map((item) => {
-		if (item.hasOwnProperty('groups')) {
-			try {
-				item.groups = JSON.parse(item.groups);
-			} catch (err) {
-				winston.error(err.stack);
-				item.groups = [];
+		if (item) {
+			if (item.hasOwnProperty('groups')) {
+				try {
+					item.groups = JSON.parse(item.groups);
+				} catch (err) {
+					winston.error(err.stack);
+					item.groups = [];
+				}
 			}
-		}
-		item.groups = item.groups || [];
-		if (item.groups && !Array.isArray(item.groups)) {
-			item.groups = [item.groups];
+			item.groups = item.groups || [];
+			if (item.groups && !Array.isArray(item.groups)) {
+				item.groups = [item.groups];
+			}
 		}
 		return item;
 	});
